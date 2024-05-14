@@ -1,0 +1,35 @@
+Options +MultiViews
+
+# Disable Directory Browsing
+Options All -Indexes
+
+# Disable Server Signature
+# ServerTokens Prod
+ServerSignature Off
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+RewriteCond %{REQUEST_METHOD} ^(DELETE|DEBUG|PATCH|PUT|TRACE|TRACK|OPTIONS|UPDATE)$
+RewriteRule .* - [F,L]
+
+<IfModule mod_headers.c>
+    
+   
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "no-referrer-when-downgrade"
+    
+    
+ 
+    Header edit Set-Cookie ^(ci_session=[^;]+) "$1; HttpOnly; SameSite=Strict; "
+
+
+    Header set Access-Control-Allow-Origin "*"
+    Header edit Server "(^PHP\/\d+\.\d+\.\d+)(.*)$" "$1$2"
+    Header always unset X-Powered-By "expr=%{CONTENT_TYPE} =~ m#^application\/x-httpd-php.*$#"
+    Header always unset Server
+</IfModule>
